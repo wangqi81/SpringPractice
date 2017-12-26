@@ -25,7 +25,8 @@ public class App {
 
 		Log4jConfigurer.initLogging("classpath:log4j/log4j.xml");
 
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("spring-servlet.xml");
+//		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("spring-servlet.xml");
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext((new String[]{"applicationContext.xml", "spring-servlet.xml"}));
 
 		EmployeeService employeeService = ctx.getBean("employeeService", EmployeeService.class);
 

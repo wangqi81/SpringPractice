@@ -6,6 +6,19 @@
  
 	<display-name>Spring4MVCHelloWorldDemo Web Application</display-name>
 	
+	<!-- 加载Spring容器配置，配置监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<!-- 设置Spring容器加载配置文件路径 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:applicationContext.xml
+		</param-value>
+	</context-param>
+	
+	
 	<servlet>
 	   <servlet-name>dispatcher</servlet-name>
 	   <servlet-class>
@@ -13,7 +26,9 @@
 	   </servlet-class>
 	   <init-param>
 	       <param-name>contextConfigLocation</param-name>
-	       <param-value>classpath:spring-servlet.xml</param-value>
+	       <param-value>
+	       	classpath:spring-servlet.xml
+	       </param-value>
 	   </init-param>
 	   <load-on-startup>1</load-on-startup>
 	</servlet>

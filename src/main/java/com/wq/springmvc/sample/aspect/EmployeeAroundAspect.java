@@ -29,15 +29,15 @@ public class EmployeeAroundAspect {
 //		return value;
 //	}
 	
-	@Around("execution(* com.wq.springmvc.sample.service..*.*(..))")
+	@Around("execution(* com.wq.springmvc.sample.service..*.*(..)) or execution(* com.wq.springmvc.sample.controller..*.*(..))")
 	public Object employeeServiceAroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-		logger.info("Before invoking getName() method");
+		logger.info("Before invoking {} method", proceedingJoinPoint.getSignature());
 		
 		Object value = null;
 		
 		value = proceedingJoinPoint.proceed();
 		
-		logger.info("After invoking getName() method. Return value=" + value);
+		logger.info("After invoking {} method. Return value=" + value, proceedingJoinPoint.getSignature());
 		
 		return value;
 	}
