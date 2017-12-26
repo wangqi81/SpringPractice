@@ -11,18 +11,31 @@ public class EmployeeAroundAspect {
 
 	private final static Logger logger = LoggerFactory.getLogger(EmployeeAroundAspect.class);
 	
-	@Around("execution(public String getName())")
-	public Object employeeAroundAdvice(ProceedingJoinPoint proceedingJoinPoint) {
-		
+//	@Around("execution(public String getName())")
+//	public Object employeeAroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+//		
+//		logger.info("Before invoking getName() method");
+//		
+//		Object value = null;
+//		
+////		try {
+//			value = proceedingJoinPoint.proceed();
+////		} catch (Throwable e) {
+////			e.printStackTrace();
+////		}
+//		
+//		logger.info("After invoking getName() method. Return value=" + value);
+//		
+//		return value;
+//	}
+	
+	@Around("execution(* com.wq.springmvc.sample.service..*.*(..))")
+	public Object employeeServiceAroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
 		logger.info("Before invoking getName() method");
 		
 		Object value = null;
 		
-		try {
-			value = proceedingJoinPoint.proceed();
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+		value = proceedingJoinPoint.proceed();
 		
 		logger.info("After invoking getName() method. Return value=" + value);
 		

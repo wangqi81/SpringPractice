@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+					    http://www.springframework.org/schema/mvc 
+					    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+					    http://www.springframework.org/schema/context 
+					    http://www.springframework.org/schema/context/spring-context-4.0.xsd
+					    http://www.springframework.org/schema/aop 
+					    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+					    http://www.springframework.org/schema/task 
+					    http://www.springframework.org/schema/task/spring-task-4.3.xsd
+					    http://www.springframework.org/schema/jdbc 
+					    http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+					    ">
+
+	<!-- tells spring to search project classpath for all classes under the package specified with base-package [com.wq.springmvc], and look at each class 
+		to see if it is annotated with specific Spring annotations [@Controller, @Service, @Repository, @Component, etc..] and if it does then Spring will register 
+		the class with the bean factory as if you had typed in the xml configuration files. -->
+	<context:component-scan base-package="com.wq.springmvc.sample.controller" />
+
+	<!-- 为将返回的viewname映射到对应的jsp上 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/views/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	<!-- 该 BeanPostProcessor 将自动对标注 @Autowired 的 Bean 进行注入 -->
+	<!-- <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/> -->
+
+</beans>

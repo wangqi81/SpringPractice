@@ -1,8 +1,6 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:aop="http://www.springframework.org/schema/aop"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 					    http://www.springframework.org/schema/mvc 
@@ -10,55 +8,80 @@
 					    http://www.springframework.org/schema/context 
 					    http://www.springframework.org/schema/context/spring-context-4.0.xsd
 					    http://www.springframework.org/schema/aop 
-					    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+					    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+					    http://www.springframework.org/schema/task 
+					    http://www.springframework.org/schema/task/spring-task-4.3.xsd
+					    http://www.springframework.org/schema/jdbc 
+					    http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+					    ">
 
-	<!-- tells spring to search project classpath for all classes under the package specified with base-package [com.wq.springmvc], and look at each 
-		class to see if it is annotated with specific Spring annotations [@Controller, @Service, @Repository, @Component, etc..] and if it does then Spring will 
-		register the class with the bean factory as if you had typed in the xml configuration files. -->
+	<!-- tells spring to search project classpath for all classes under the package specified with base-package [com.wq.springmvc], and look at each class 
+		to see if it is annotated with specific Spring annotations [@Controller, @Service, @Repository, @Component, etc..] and if it does then Spring will register 
+		the class with the bean factory as if you had typed in the xml configuration files. -->
 	<context:component-scan base-package="com.wq.springmvc" />
 
 	<!-- says that we can define spring beans dependencies without actually having to specify a bunch of beans in xml or implement an interface or extend 
 		a base class or anything. For example, just by annotating a class with @Controller (as we did above) , spring will know that the specified class contains 
 		methods that will handle HTTP requests, no need to define that as a bean in xml. -->
 	<mvc:annotation-driven />
-	
-	
+
+
 	<!-- Enable AspectJ style of Spring AOP -->
 	<aop:aspectj-autoproxy />
-	
-	<!-- Configure Employee Bean and initialize it -->
-	<bean name="employee" class="com.wq.springmvc.sample.entity.Employee">
-		<property name="name" value="Dummy Name"></property>
-	</bean>
-	
-	<!-- Configure EmployeeService bean -->
-	<bean name="employeeService" class="com.wq.springmvc.sample.service.EmployeeService">
-		<property name="employee" ref="employee"></property>
-	</bean>
-	
+
+	<!-- enable scheduling -->
+	<task:annotation-driven />
+
 	<!-- Configure Aspect Beans, without this Aspects advices wont execute -->
-	<bean name="employeeAspect" class="com.wq.springmvc.sample.aspect.EmployeeAspect" />
-<!-- 	<bean name="employeeAspectPointcut" class="com.wq.springmvc.sample.aspect.EmployeeAspectPointcut" /> -->
-<!-- 	<bean name="employeeAspectJoinPoint" class="com.wq.springmvc.sample.aspect.EmployeeAspectJoinPoint" /> -->
-<!-- 	<bean name="employeeAfterAspect" class="com.wq.springmvc.sample.aspect.EmployeeAfterAspect" /> -->
+	<!-- <bean name="employeeAspect" class="com.wq.springmvc.sample.aspect.EmployeeAspect" /> -->
+	<!-- <bean name="employeeAspectPointcut" class="com.wq.springmvc.sample.aspect.EmployeeAspectPointcut" /> -->
+	<!-- <bean name="employeeAspectJoinPoint" class="com.wq.springmvc.sample.aspect.EmployeeAspectJoinPoint" /> -->
+	<!-- <bean name="employeeAfterAspect" class="com.wq.springmvc.sample.aspect.EmployeeAfterAspect" /> -->
 	<bean name="employeeAroundAspect" class="com.wq.springmvc.sample.aspect.EmployeeAroundAspect" />
-<!-- 	<bean name="employeeAnnotationAspect" class="com.wq.springmvc.sample.aspect.EmployeeAnnotationAspect" /> -->
+	<!-- <bean name="employeeAnnotationAspect" class="com.wq.springmvc.sample.aspect.EmployeeAnnotationAspect" /> -->
 
 
+	<!-- step 1 datasource -->
+	<jdbc:embedded-database id="dataSource" type="H2">
+		<jdbc:script location="classpath:schema.sql" />
+		<jdbc:script location="classpath:test-data.sql" />
+	</jdbc:embedded-database>
 
+	<!-- step 2 sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 
+	<!-- step 3 mapper -->
+	<bean id="mapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="com.wq.springmvc.sample.dao.PersonMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
 
-	<!-- 为将返回的viewname映射到对应的jsp上 -->
-<!-- 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
-<!-- 		<property name="prefix"> -->
-<!-- 			<value>/WEB-INF/views/</value> -->
-<!-- 		</property> -->
-<!-- 		<property name="suffix"> -->
-<!-- 			<value>.jsp</value> -->
+<!-- 	<bean depends-on="dataSource" class="org.springframework.beans.factory.config.MethodInvokingBean"> -->
+<!-- 		<property name="targetClass" value="org.hsqldb.util.DatabaseManagerSwing" /> -->
+<!-- 		<property name="targetMethod" value="main" /> -->
+<!-- 		<property name="arguments"> -->
+<!-- 			<list> -->
+<!-- 				<value>jdbc:h2:mem:dataSource</value> -->
+<!-- 				<value>sa</value> -->
+<!-- 				<value></value> -->
+<!-- 			</list> -->
 <!-- 		</property> -->
 <!-- 	</bean> -->
 
-	<!-- 该 BeanPostProcessor 将自动对标注 @Autowired 的 Bean 进行注入 -->     
-<!--   	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>   -->
+
+	<!-- 为将返回的viewname映射到对应的jsp上 -->
+	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
+	<!-- <property name="prefix"> -->
+	<!-- <value>/WEB-INF/views/</value> -->
+	<!-- </property> -->
+	<!-- <property name="suffix"> -->
+	<!-- <value>.jsp</value> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<!-- 该 BeanPostProcessor 将自动对标注 @Autowired 的 Bean 进行注入 -->
+	<!-- <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/> -->
 
 </beans>

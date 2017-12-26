@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapper.java namespace -->
+<mapper namespace="com.wq.springmvc.sample.dao.PersonMapper">
+
+	<!-- Person.java namespace -->
+	<resultMap type="com.wq.springmvc.sample.entity.Person" id="Person">
+		<!-- map table "person"column to class "Person" property -->
+		<id column="id" property="id" />
+		<result property="name" column="name" />
+	</resultMap>
+
+	<select id="selectAllPerson" resultMap="Person">
+		SELECT * FROM person
+	</select>
+	
+</mapper>
