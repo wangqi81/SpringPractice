@@ -20,6 +20,23 @@
 		the class with the bean factory as if you had typed in the xml configuration files. -->
 	<context:component-scan base-package="com.wq.springmvc.sample.controller" />
 
+	<!-- Enable AspectJ style of Spring AOP -->
+	<aop:aspectj-autoproxy />
+	
+	<!-- says that we can define spring beans dependencies without actually having to specify a bunch of beans in xml or implement an interface or extend 
+		a base class or anything. For example, just by annotating a class with @Controller (as we did above) , spring will know that the specified class contains 
+		methods that will handle HTTP requests, no need to define that as a bean in xml. -->
+	<mvc:annotation-driven />
+	
+	<!-- 把无法mapping到Controller的path交给default servlet handler处理 -->
+<!--     <mvc:default-servlet-handler /> -->
+    
+    <!-- 配置静态资源，直接映射到对应的文件夹，不被DispatcherServlet处理而由前面的default-servlet-handler处理，3.04新增功能，需要重新设置spring-mvc-3.0.xsd -->
+<!--     <mvc:resources mapping="/img/**" location="/img/" /> -->
+<!--     <mvc:resources mapping="/js/**" location="/js/" /> -->
+<!--     <mvc:resources mapping="/css/**" location="/css/" /> -->
+<!--     <mvc:resources mapping="/html/**" location="/html/" /> -->
+    
 	<!-- 为将返回的viewname映射到对应的jsp上 -->
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix">

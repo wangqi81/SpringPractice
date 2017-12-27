@@ -6,16 +6,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wq.springmvc.sample.entity.Employee;
 import com.wq.springmvc.sample.entity.Message;
+import com.wq.springmvc.sample.entity.Person;
 import com.wq.springmvc.sample.service.EmployeeService;
+import com.wq.springmvc.sample.service.PersonService;
 
 @RestController
 @RequestMapping("/")
 public class HelloWorldController {
 	
 	@Autowired
-	EmployeeService employeeService;
+	private EmployeeService employeeService;
+	
+	@Autowired
+	private PersonService personService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String sayHello() {
@@ -26,9 +30,10 @@ public class HelloWorldController {
 	@RequestMapping("/hello/{player}")
 	public Message hello(@PathVariable String player) {// REST Endpoint.
 
-		employeeService.setEmployee(new Employee());
-
-		employeeService.getEmployee().setName("testAOP Set Name");
+//		employeeService.setEmployee(new Employee());
+//
+//		employeeService.getEmployee().setName("testAOP Set Name");
+		Person person = personService.selectPerson(2);
 		
 		Message msg = new Message(player, "Hello " + player);
 		

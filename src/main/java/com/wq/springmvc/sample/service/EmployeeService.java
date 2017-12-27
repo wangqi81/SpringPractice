@@ -14,7 +14,7 @@ import com.wq.springmvc.sample.entity.Employee;
 @Component
 public class EmployeeService {
 	
-	private final static Logger logger = LoggerFactory.getLogger(EmployeeAfterAspect.class);
+	private final static Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 	
 	private Employee employee;
 

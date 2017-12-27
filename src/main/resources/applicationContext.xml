@@ -1,29 +1,26 @@
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-					    http://www.springframework.org/schema/mvc 
-					    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
-					    http://www.springframework.org/schema/context 
-					    http://www.springframework.org/schema/context/spring-context-4.0.xsd
-					    http://www.springframework.org/schema/aop 
-					    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
-					    http://www.springframework.org/schema/task 
-					    http://www.springframework.org/schema/task/spring-task-4.3.xsd
-					    http://www.springframework.org/schema/jdbc 
-					    http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+					    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+					    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+					    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+					    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+					    http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+					    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 					    ">
 
 	<!-- tells spring to search project classpath for all classes under the package specified with base-package [com.wq.springmvc], and look at each class 
 		to see if it is annotated with specific Spring annotations [@Controller, @Service, @Repository, @Component, etc..] and if it does then Spring will register 
 		the class with the bean factory as if you had typed in the xml configuration files. -->
-	<context:component-scan base-package="com.wq.springmvc" />
-
-	<!-- says that we can define spring beans dependencies without actually having to specify a bunch of beans in xml or implement an interface or extend 
-		a base class or anything. For example, just by annotating a class with @Controller (as we did above) , spring will know that the specified class contains 
-		methods that will handle HTTP requests, no need to define that as a bean in xml. -->
-	<mvc:annotation-driven />
+	<context:component-scan base-package="com.wq.springmvc">
+		<context:exclude-filter type="regex" expression="com.wq.springmvc.sample.controller.*" />
+	</context:component-scan>
 
 	<!-- Enable AspectJ style of Spring AOP -->
 	<aop:aspectj-autoproxy />
@@ -40,11 +37,20 @@
 	<!-- <bean name="employeeAnnotationAspect" class="com.wq.springmvc.sample.aspect.EmployeeAnnotationAspect" /> -->
 
 
-	<!-- step 1 datasource -->
-	<jdbc:embedded-database id="dataSource" type="H2">
+	<!-- step 1 datasource connection pool -->
+	<!-- connect a dbcp connection pool -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<property name="url" value="jdbc:h2:mem:test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+		<property name="initialSize" value="10" />
+	</bean>
+
+	<jdbc:initialize-database data-source="dataSource" ignore-failures="DROPS">
 		<jdbc:script location="classpath:schema.sql" />
 		<jdbc:script location="classpath:test-data.sql" />
-	</jdbc:embedded-database>
+	</jdbc:initialize-database>
 
 	<!-- step 2 sqlSessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -53,39 +59,32 @@
 	</bean>
 
 	<!-- DAO接口所在包名，Spring会自动查找其下的类 ,包下的类需要使用@MapperScan注解,否则容器注入会失败 -->
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.wq.springmvc.sample.dao" />
-        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
-    </bean>
-    
-	<!-- step 3 mapper -->
-<!-- 	<bean id="mapper" class="org.mybatis.spring.mapper.MapperFactoryBean"> -->
-<!-- 		<property name="mapperInterface" value="com.wq.springmvc.sample.dao" /> -->
-<!-- 		<property name="sqlSessionFactory" ref="sqlSessionFactory" /> -->
-<!-- 	</bean> -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.wq.springmvc.sample.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
 
-<!-- 	<bean depends-on="dataSource" class="org.springframework.beans.factory.config.MethodInvokingBean"> -->
-<!-- 		<property name="targetClass" value="org.hsqldb.util.DatabaseManagerSwing" /> -->
-<!-- 		<property name="targetMethod" value="main" /> -->
-<!-- 		<property name="arguments"> -->
-<!-- 			<list> -->
-<!-- 				<value>jdbc:h2:mem:dataSource</value> -->
-<!-- 				<value>sa</value> -->
-<!-- 				<value></value> -->
-<!-- 			</list> -->
-<!-- 		</property> -->
-<!-- 	</bean> -->
+	<!-- 下面是配置声明式事务管理的，个人感觉比用注解管理事务要简单方便 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 
+	<aop:config>
+		<!-- advisor包含一个切点和一个通知，而aspect包含多个 -->
+		<aop:advisor pointcut="execution(* com.wq.springmvc.sample.service.*Service.*(..))" advice-ref="txAdvice" />
+	</aop:config>
 
-	<!-- 为将返回的viewname映射到对应的jsp上 -->
-	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
-	<!-- <property name="prefix"> -->
-	<!-- <value>/WEB-INF/views/</value> -->
-	<!-- </property> -->
-	<!-- <property name="suffix"> -->
-	<!-- <value>.jsp</value> -->
-	<!-- </property> -->
-	<!-- </bean> -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Service类中以get*,query*等等开头的查询操作只能执行只读事务；-->
+<!-- 			<tx:method name="get*" read-only="true" /> -->
+<!-- 			<tx:method name="query*" read-only="true" /> -->
+<!-- 			<tx:method name="find*" read-only="true" /> -->
+<!-- 			<tx:method name="load*" read-only="true" /> -->
+			<!-- 对于所有的事务，如果出现异常就回滚  -->
+			<tx:method name="*" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
 
 	<!-- 该 BeanPostProcessor 将自动对标注 @Autowired 的 Bean 进行注入 -->
 	<!-- <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/> -->

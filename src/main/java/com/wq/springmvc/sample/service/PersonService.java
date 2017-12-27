@@ -19,7 +19,11 @@ public class PersonService {
 	}
 
 	public Person selectPerson(int id) {
-		return personMapper.selectPerson(id);
+		Person person = personMapper.selectPerson(id);
+		
+		personMapper.insertPerson(person);
+		
+		return person;
 	}
 
 	public int insertPerson(Person person) {
