@@ -3,8 +3,13 @@ package com.wq.springmvc.sample;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.Log4jConfigurer;
 
@@ -20,8 +25,8 @@ import com.wq.springmvc.sample.service.PersonService;
 public class App {
 
 	private static Log log = LogFactory.getLog(App.class);
-
-	public static void main(String[] args) throws FileNotFoundException {
+	
+	public static void main(String[] args) throws FileNotFoundException, JMSException {
 
 		Log4jConfigurer.initLogging("classpath:log4j/log4j.xml");
 
@@ -60,7 +65,12 @@ public class App {
 		System.out.println("List<Person> persons = service.selectAllPerson()");
 		persons = service.selectAllPerson();
 		System.out.println("-> " + persons + "\n");
+		
+		
+		ProducerConsumerTest producerConsumerTest = ctx.getBean("producerConsumerTest", ProducerConsumerTest.class);
+		producerConsumerTest.testSend();
 
-		ctx.close();
+//		ctx.close();
 	}
+	
 }
